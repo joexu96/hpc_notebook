@@ -43,3 +43,7 @@ LightRAG 是一种基于 GraphRAG 结合了知识图谱（Knowledge Graphs）和
 ## LightRAG 文档向量化流程 (构建数据库)
 
 ## LightRAG 检索查询流程 (用户查询使用上一步构建的数据库)
+
+ref1:[](https://learnopencv.com/lightrag/)
+ref2:[arvix](https://arxiv.org/pdf/2410.05779)
+ref3:
