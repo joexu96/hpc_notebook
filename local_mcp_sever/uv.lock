@@ -165,10 +165,14 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "mcp", extra = ["cli"] },
+    { name = "typer" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "mcp", extras = ["cli"], specifier = ">=1.12.2" }]
+requires-dist = [
+    { name = "mcp", extras = ["cli"], specifier = ">=1.12.2" },
+    { name = "typer", specifier = ">=0.16.0" },
+]
 
 [[package]]
 name = "markdown-it-py"

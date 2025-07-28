@@ -1,0 +1,12 @@
+{
+    "servers": [
+      {
+        "name": "File Explorer",
+        "transport": {
+          "type": "stdio",
+          "command": "python",
+          "args": ["/home/xj/work/research/hpc_notebook/local_mcp_sever/server.py"]
+        }
+      }
+    ]
+  }
