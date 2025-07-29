@@ -1,4 +1,10 @@
 import json
+
+import os, httpx
+os.environ["HTTPX_IGNORE_ENV_PROXY"] = "1"
+httpx.Client()   # 触发一次，确保生效
+# import gradio as gr
+
 import gradio as gr
 from textblob import TextBlob
 
