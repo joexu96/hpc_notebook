@@ -65,5 +65,10 @@
 [LlamaIndex](https://docs.llamaindex.ai/en/stable/) is the leading framework for building LLM-powered agents over your data with LLMs and workflows.
 
 
-## Other function call
+## 本地小型 MCP 方案
 
+### Tiny Agents （hf course 的 eaxmple
+[50 行代码实现 AI agent](https://huggingface.co/blog/tiny-agents) 
+相关包改到了 smolagents ，感觉可以用 Gradio + smolagents 快速实现。
+
+### 
