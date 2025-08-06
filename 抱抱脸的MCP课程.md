@@ -307,3 +307,65 @@ MCP 的关键特性之一是动态能力发现。客户端连接到服务器后�
     prompts/list：发现可用提示词
 
 这种动态发现机制使客户端无需硬编码服务器功能即可适应其具体能力。
+
+## Part2. Build a MCP Application
+
+注: 前面的基本都是课程的翻译,这一部分我看原课程有点懵,所以会根据我的理解重新组织, 但是请放心, 跟随下面的步骤,你一定可以在本地跑一个MCP.
+
+前面提到,MCP的架构包括三个部分,面向用户的 Host, 提供具体服务的 Server, 以及链接 Host 和 Server 的 Client. 
+
+### Server
+
+首先定义一个小的 tool sentiment_analysis, 实现情感分析的功能. 接着使用 Gradio 将 tool 封装, 提供该 Gradio 的接口, 实现 Server, 使得用户和大模型都可以通过该接口调用 Server sentiment_analysis. 
+
+```py3
+
+```
+
+
+Client: 基于 MCP SDK 搭建该系统的 Client. Host 可以通过 tools 列出支持的工具, 通过 call_tool 调用前面的 Server sentiment_analysis
+
+### Host
+
+ 课程里使用 Countinue (vscode 插件) 作为host, 所以 Host 主要的步骤是 Continue 配置大模型和 MCP 服务. 
+
+1. 使用 ollma 运行大模型
+```bash
+nohup ollama serve &
+
+ollama run hf.co/unsloth/Devstral-Small-2505-GGUF:Q4_K_M
+
+```
+
+
+| Host   | 用户直接使用的AI应用（比如Claude桌面版）      | 主机负责管理用户交互与权限,通过 MCP 客户端发起与 MCP 服务器的连接,协调用户请求、大模型处理与外部工具之间的整体流程,以一致、连贯的格式向用户呈现结果。 |
+| Client | Host内部负责和某个具体工具对接的小模块 | 个客户端与单个服务器保持 1:1 连接，负责处理 MCP 协议层面的通信细节，充当主机逻辑与外部服务器之间的中介。    |
+| Server | 通过 MCP 协议暴露能力（工具、资源、提示词）的外部程序或服务.    |     提供对特定外部工具、数据源或服务的访问,作为现有功能的轻量级封装,可在本地（与主机同一台机器）或远程（通过网络）运行,以标准化格式暴露自身能力，供客户端发现与使用      |
+
+
+### Tool list
+
+跑了一下课程里的例子，日新月异，一步步跑很多跑不起来，更多的还是看他提到了什么，再去看文档，再去修改。所以这里就给几个它用到的工具（很多基于Claude不太平民就不提了）。
+
+| 技术/组件                                                     | 在 MCP 体系中的角色             | 实现功能                                                      | 关键依赖/接口                                                     |
+| --------------------------------------------------------- | ------------------------ | --------------------------------------------------------- | ----------------------------------------------------------- |
+| **Lemonade Server**                                       | **MCP Server (推理端)**     | 提供本地 LLM 推理服务，支持 CPU / Vulkan-AMD GPU / AMD NPU 加速        | llamacpp + Vulkan + AMD Ryzen™ AI 驱动                        |
+| **Tiny Agents CLI**                                       | **MCP Client (Agent 端)** | 从 Lemonade Server 拉取模型 → 根据用户指令触发 MCP Tool 调用 → 汇总结果返回给用户 | 读取 `agent.json` 配置，通过 MCP-over-stdio 与 Desktop Commander 通信 |
+| **Desktop Commander MCP Server**                          | **MCP Server (工具端)**     | 暴露本地文件系统、终端、代码编辑等 18 种工具接口给 Agent 调用                      | `@wonderwhy-er/desktop-commander` npm 包                     |
+| **mcp-remote**                                            | **MCP Bridge / 转发器**     | 在 Tiny Agents 无法直连远程 SSE 端点时，把 stdio 请求转给远程 MCP Server    | `npx mcp-remote <url>`                                      |
+| **Qwen3-8B-GGUF / Jan-Nano-4B**                           | **被调用模型**                | 作为 Lemonade Server 加载的推理后端，完成 LLM 推理                      | GGUF 格式，llamacpp 引擎                                         |
+| **agent.json**                                            | **MCP Client 配置**        | 告诉 Tiny Agents 用哪个模型、连哪个 MCP Server、加载哪些 MCP Tool Server  | JSON 配置文件                                                   |
+| **job\_description.md / john\_resume.md / invitation.md** | **业务数据 (上下文)**           | 由 Desktop Commander 工具在本地读写，确保敏感数据不出本机                    | 纯文本 / Markdown                                              |
+
+至此就不更新该文档了。
+
+
+
+Downloading Qwen3-1.7B-GGUF (unsloth/Qwen3-1.7B-GGUF:Q4_0)
+Qwen3-1.7B-Q4_0.gguf: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1.06G/1.06G [03:33<00:00, 4.94MB/s]
+Fetching 1 files: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [03:34<00:00, 214.89s/it]
+INFO:     ::1:46684 - "POST /api/v1/pull HTTP/1.1" 200 OK
+INFO:     ::1:46684 - "GET /api/v1/models HTTP/1.1" 200 OK
+INFO:     ::1:46684 - "GET /api/v1/models HTTP/1.1" 200 OK
+Downloading user.qwen3-1-7b (Qwen/Qwen3-1.7B-GGUF:Qwen-1.7B-Q4_0.gguf)
+INFO:     ::1:33510 - "POST /api/v1/pull HTTP/1.1" 500 Internal Server Err
